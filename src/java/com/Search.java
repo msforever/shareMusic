@@ -34,6 +34,10 @@ import javafx.scene.text.Font;
 import javafx.stage.StageBuilder;
 import javafx.stage.WindowEvent;
 import javax.swing.SwingUtilities;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.AnnotationConfiguration;
 /**
  *
  * @author Mayuresh
@@ -47,34 +51,21 @@ public class Search {
     String path;
     File file;
     byte [] b;
-    Connection con;
+    Session session;
     
     public void addSong(Song song){
-        path=song.getSpath();
-      
+        Song temp;
+        temp=song;
+        path=temp.getSpath();
            try {
-               con=getConnection();
-               PreparedStatement ps=con.prepareStatement("insert into songs values(?,?,?,?,?)");
-               ps.setInt(1, 2);
-               ps.setString(2, "laad piya ka");
-               ps.setString(3, "Haryana");
-               ps.setString(4, "Haryana");
-               ps.setString(5, "E:\\");
-               ps.executeUpdate();
+               session=getSession();     
                file=new File(path);
-              // while (file)
-               
                System.out.println(song.getSname()+" is found at: "+file.getAbsolutePath());
-              
-           } catch (SQLException ex) {
-               Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
-           }
+              session.save(temp);
+           } 
            finally{
-               try {
-                   con.close();
-               } catch (SQLException ex) {
-                   Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
-               }
+               temp=null;
+               session.close();
            }
        
        
@@ -85,19 +76,12 @@ public class Search {
                 mediaPlayer.play();
     }
     
-    public Connection getConnection(){
-        Connection con=null;
-        try {
-            Class.forName("com.mysql.jdbc.Driver");  
-             con=DriverManager.getConnection("jdbc:mysql://localhost:3306/songs","root","");
-              
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
-        }
-         catch (SQLException ex) {
-            Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return con;
+    public Session getSession(){
+        AnnotationConfiguration con = new AnnotationConfiguration().configure();
+        SessionFactory sf = con.buildSessionFactory();
+        Session s = sf.openSession();
+        Transaction t = s.beginTransaction();
+        return s;
         
     }
     public static void main(String[] args) {

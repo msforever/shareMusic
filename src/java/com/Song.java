@@ -5,11 +5,21 @@
  */
 package com;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  *
  * @author Mayuresh
+ 
  */
+@Entity 
+@Table (name="songs")
 public class Song {
+    @Id
+    @GeneratedValue
     private int sid;
     private String sname;
     private String sartist;
